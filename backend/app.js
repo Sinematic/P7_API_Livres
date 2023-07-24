@@ -1,7 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const User = require('./models/User');
-const Book = require('./models/Book');
+
+const bookRoutes = require('./routes/book');
+const userRoutes = require('./routes/user');
 
 mongoose.connect('mongodb+srv://node-api-unknown-user:IYQPlZBGR4sdGUJM@cluster0.edtwz6b.mongodb.net/',
     {
@@ -20,64 +21,8 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use('/api/book', bookRoutes);
 
-// CRUD '/api/books'
-
-app.get('/api/books', (req, res, next) => {
-
-	Book.find()
-		.then((books) => res.status(201).json(books))
-		.catch(error => res.status(400).json({error}));
-});
-
-app.post('/api/books', (req, res, next) => {
-
-	delete req.body.id;
-	const book = new Book ({ ...req.body});
-
-	book.save()
-		.then(() => res.status(201).json({message : "Livre enregistré !"}))
-		.catch((error) => res.status(400).json({error}));
-})
-
-app.delete('/api/books/:id', (req, res, next) => {
-
-	Book.deleteOne({ _id : req.params.id })
-		.then(() => res.status(200).json({ message : "Livre supprimé !"}))
-		.catch(error => res.status(400).json({ error }))
-})
-
-/*
-app.delete('/api/books', (req, res, next) => {
-
-	Book.deleteMany()
-		.then();
-});*/
-
-app.put('/api/books/:id', (req, res, next) => {
-
-	Book.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id })
-		.then(() => res.status(200).json({ message : "Livre modifié !" }))
-		.catch((error) => res.status(400).json({ error }));
-
-});
-
-// CRUD '/api/users'
-
-app.get('/api/users', (req, res, next) => {
-
-	User.find()
-		.then((users) => res.status(201).json(users))
-		.catch(error => res.status(400).json({error}));
-})
-
-app.post('/api/users', (req, res, next) => {
-
-	const user = new User ({ ...req.body});
-
-	user.save()
-		.then(() => res.status(201).json({ message: "Utilisateur créé !"}))
-		.catch(error => res.status(400).json({error}))
-})
+app.use('api/user', userRoutes)
 
 module.exports = app;
