@@ -36,5 +36,4 @@ exports.modifyBook = (req, res, next) => {
 	Book.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id })
 		.then(() => res.status(200).json({ message : "Livre modifié !" }))
 		.catch((error) => res.status(204).json({ error }));
-
 };
