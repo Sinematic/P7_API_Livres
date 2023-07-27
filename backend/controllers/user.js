@@ -3,7 +3,7 @@ const User = require('../models/User');
 
 exports.login = (req, res, next) => {
 
-	User.find()
+	User.findOne({ mail: req.body.mail })
 		.then((users) => res.status(200).json(users))
 		.catch(error => res.status(404).json({error}));
 };
