@@ -16,5 +16,4 @@
     ],
     "rules": {},
     "ignorePatterns": ["backend/**/*"]
-  }
-  
+}
