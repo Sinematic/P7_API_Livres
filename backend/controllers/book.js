@@ -17,17 +17,17 @@ exports.getOneBook = (req, res, next) => {
 exports.createBook = (req, res, next) => {
 
 	delete req.body.id;
-	const book = new Book ({ ...req.body});
+	const book = new Book ({ ...req.body });
 
 	book.save()
-		.then(() => res.status(201).json({message : "Livre enregistré !"}))
+		.then(() => res.status(201).json({ message : "Livre enregistré !" }))
 		.catch((error) => res.status(400).json({ error }));
 };
 
 exports.deleteOneBook = (req, res, next) => {
 
 	Book.deleteOne({ _id : req.params.id })
-		.then(() => res.status(200).json({ message : "Livre supprimé !"}))
+		.then(() => res.status(200).json({ message : "Livre supprimé !" }))
 		.catch(error => res.status(204).json({ error }));
 };
 
