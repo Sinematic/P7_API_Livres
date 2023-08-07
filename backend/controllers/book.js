@@ -16,12 +16,22 @@ exports.getOneBook = (req, res, next) => {
 
 exports.createBook = (req, res, next) => {
 
-	delete req.body.id;
-	const book = new Book ({ ...req.body });
+	const bookObject = JSON.parse(req.body.book);
+	delete bookObject._id;
+	delete bookObject.userId;
+	console.log('toto')
+	console.log(bookObject);
+	console.log(req);
+	
+	const book = new Book({
+		...bookObject,
+		userId: req.auth.userId,
+		imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+	});
 
 	book.save()
-		.then(() => res.status(201).json({ message : "Livre enregistré !" }))
-		.catch((error) => res.status(400).json({ error }));
+		.then(() => res.status(201).json({ message: "Livre ajouté !" }))
+		.catch(error => res.status(400).json({ error }));
 };
 
 exports.deleteOneBook = (req, res, next) => {
