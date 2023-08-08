@@ -16,9 +16,12 @@ exports.getOneBook = (req, res, next) => {
 
 exports.createBook = (req, res, next) => {
 
-	const bookObject = req.body;
+	const bookObject = req.body.book;
+	//console.log(bookObject)
 	delete bookObject._id;
 	delete bookObject.userId;
+
+	console.log(bookObject)
 	
 	const book = new Book({
 		...bookObject,
