@@ -16,18 +16,17 @@ exports.getOneBook = (req, res, next) => {
 
 exports.createBook = (req, res, next) => {
 
-	const bookObject = JSON.parse(req.body.book);
+	const bookObject = req.body;
 	delete bookObject._id;
 	delete bookObject.userId;
-	console.log('toto')
-	console.log(bookObject);
-	console.log(req);
 	
 	const book = new Book({
 		...bookObject,
 		userId: req.auth.userId,
 		imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
 	});
+
+	console.log(book)
 
 	book.save()
 		.then(() => res.status(201).json({ message: "Livre ajouté !" }))
