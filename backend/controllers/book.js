@@ -19,6 +19,7 @@ exports.createBook = (req, res, next) => {
 	const bookObject = JSON.parse(req.body.book);
 	delete bookObject._id;
 	delete bookObject._userId;
+	console.log(`${req.protocol}://${req.get('host')}/images/${req.file.filename}`)
 	
 	const book = new Book({
 		...bookObject,
