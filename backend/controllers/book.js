@@ -27,10 +27,13 @@ exports.createBook = (req, res, next) => {
 		imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
 	});
 
-	book.save()
-	.then(() => { res.status(201).json({message: 'Livre enregistré !'})})
-	.catch(error => { 
-		res.status(400).json( { error })})
+	if (!book.imageUrl.endsWith('.undefined')) {
+		book.save()
+			.then(() => res.status(201).json({ message: 'Livre enregistré !' }))
+			.catch(error => res.status(400).json({ error }));
+	} else {
+		res.status(400).json({ error: "Problème rencontré avec l'image !" });
+	}
 };
 
 exports.deleteOneBook = (req, res, next) => {
