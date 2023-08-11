@@ -38,14 +38,33 @@ exports.createBook = (req, res, next) => {
 
 exports.modifyBook = (req, res, next) => {
 
-	Book.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id })
-		.then(req => {
-			if(req.body.userId !== req.auth.userId) {
+	const bookObject = req.file ? { 
+		...JSON.parse(req.body.book), 
+		imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}` 
+	} : { ...req.body };
+
+	delete bookObject._userId;
+
+	Book.findOne({ _id: req.params.id })
+		.then((book) => {
+			if(book.userId !== req.auth.userId) {
 				res.status(401).json({ message: "Non autorisé !" });
 			} else {
-				res.status(200).json({ message: "Livre modifié !" });
+
+				const oldImage = book.imageUrl; 
+				
+				Book.updateOne({ _id: req.params.id}, { ...bookObject, _id: req.params.id })
+					.then(() => {
+						fs.unlink(`images/${oldImage.split('/images/')[1]}`, (error) => {
+							if (!error) {
+								res.status(200).json({ message: "Livre modifié !" });
+							}
+						});
+					})
+					.catch(error => res.status(500).json({ error }));
 			}
-		});
+		})
+		.catch(error => res.status(400).json({ error }));
 };
 
 exports.addRating = (req, res, next) => {
