@@ -14,4 +14,8 @@ const bookSchema = mongoose.Schema({
     averageRating: { type: Number, required: false }
 });
 
+bookSchema.path('ratings').validate(function(value) {
+    return value.length > 0
+}, "Au moins une note est nécessaire.")
+
 module.exports = mongoose.model('Book', bookSchema);

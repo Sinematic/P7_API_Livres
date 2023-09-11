@@ -20,28 +20,25 @@ exports.createBook = (req, res, next) => {
 	const bookObject = JSON.parse(req.body.book);
 	delete bookObject._id;
 	delete bookObject._userId;
+	delete bookObject.averageRating;
 	
 	const book = new Book({
 		...bookObject,
 		userId: req.auth.userId,
-		imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+		imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+		averageRating: bookObject.ratings[0].grade
 	});
 
 	if (!book.imageUrl.endsWith('.undefined')) {
 		book.save()
 			.then(() => res.status(201).json({ message: 'Livre enregistré !' }))
 			.catch(error => {
-				console.log("req.file.filename :" + req.file.filename, "book.imageURL : " + book.imageUrl)
 				fs.unlink(`images/${req.file.filename}`, (error) => {
-					if (error) {
-						console.error('Erreur lors de la suppression du fichier :', error);
-					  } else console.log('Fichier supprimé avec succès !'); 
+					if (error) return res.status(400).json({ error });
 				})
-				res.status(400).json({ error })
+				return res.status(400).json({ error })
 			});
-	} else {
-		res.status(400).json({ error: "Problème rencontré avec l'image !" });
-	}
+	} else res.status(400).json({ error: "Problème rencontré avec l'image !" });
 };
 
 exports.modifyBook = (req, res, next) => {
@@ -56,7 +53,7 @@ exports.modifyBook = (req, res, next) => {
 	Book.findOne({ _id: req.params.id })
 		.then((book) => {
 			if(book.userId !== req.auth.userId) {
-				res.status(401).json({ message: "Non autorisé !" });
+				return res.status(401).json({ message: "Non autorisé !" });
 			} else {
 
 				const oldImage = book.imageUrl; 
@@ -65,7 +62,7 @@ exports.modifyBook = (req, res, next) => {
 					.then(() => {
 						fs.unlink(`images/${oldImage.split('/images/')[1]}`, (error) => {
 							if (!error) {
-								res.status(200).json({ message: "Livre modifié !" });
+								return res.status(200).json({ message: "Livre modifié !" });
 							}
 						});
 					})
