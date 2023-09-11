@@ -30,7 +30,15 @@ exports.createBook = (req, res, next) => {
 	if (!book.imageUrl.endsWith('.undefined')) {
 		book.save()
 			.then(() => res.status(201).json({ message: 'Livre enregistré !' }))
-			.catch(error => res.status(400).json({ error }));
+			.catch(error => {
+				console.log("req.file.filename :" + req.file.filename, "book.imageURL : " + book.imageUrl)
+				fs.unlink(`images/${req.file.filename}`, (error) => {
+					if (error) {
+						console.error('Erreur lors de la suppression du fichier :', error);
+					  } else console.log('Fichier supprimé avec succès !'); 
+				})
+				res.status(400).json({ error })
+			});
 	} else {
 		res.status(400).json({ error: "Problème rencontré avec l'image !" });
 	}
