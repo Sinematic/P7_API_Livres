@@ -15,9 +15,7 @@ const storage = multer.diskStorage({
         const extension = MIME_TYPES[file.mimetype];
         if (extension) {
             callback(null, name + Date.now() + '.' + extension);
-        } else {
-            callback(new Error('Invalid file type'));
-        }
+        } else callback(new Error('Invalid file type'));
     }
 });
 

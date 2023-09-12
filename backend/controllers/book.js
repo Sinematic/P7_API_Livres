@@ -83,8 +83,8 @@ exports.addRating = (req, res, next) => {
 			} else {
 
 				const averageRating = ratings.length > 0 ?
-					(ratings.reduce((total, rating) => total + rating.grade, 0) + req.body.rating) / (ratings.length + 1) 
-					: req.body.grade;
+					(ratings.reduce((total, rating) => (total + rating.grade, 0) + req.body.rating) / (ratings.length + 1)).toFixed(2) 
+					: req.body.grade.toFixed(2);
 
 				Book.updateOne({ _id: req.params.id }, 
 				{ 
@@ -92,7 +92,10 @@ exports.addRating = (req, res, next) => {
 					$set: { averageRating: averageRating }
 				})
 					.then(() => { 
-						res.status(200).json({ message: "Votre note a été ajoutée !" })})
+						Book.findOne({ _id: req.params.id })
+							.then((book) => res.status(200).json(book))
+							.catch(error => res.status(404).json({ error }));
+						})
 					.catch(error => res.status(500).json({ error }));
 			}
 		})
