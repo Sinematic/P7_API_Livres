@@ -11,7 +11,7 @@ module.exports = async (req, res, next) => {
             await sharp(imagePath)
                 .resize(480)
                 .jpeg({ quality: 80 })
-                .toFile(`images/${"opt" + req.file.filename}`)
+                .toFile(`images/opt${req.file.filename}`)
         
             await fs.unlink(imagePath, (error) => {
                 if (error) return res.status(400).json({ error });
@@ -23,6 +23,5 @@ module.exports = async (req, res, next) => {
             return res.status(500).json({ error });
         }
 
-    } else {
-        next();
-}}
+    } else next();
+}
