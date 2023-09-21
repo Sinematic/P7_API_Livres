@@ -60,11 +60,14 @@ exports.modifyBook = (req, res, next) => {
 				
 				Book.updateOne({ _id: req.params.id}, { ...bookObject, _id: req.params.id })
 					.then(() => {
-						fs.unlink(`images/${oldImage.split('/images/')[1]}`, (error) => {
-							if (!error) {
-								return res.status(200).json({ message: "Livre modifié !" });
-							}
-						});
+
+						if (req.file) {
+							fs.unlink(`images/${oldImage.split('/images/')[1]}`, (error) => {
+								if (!error) {
+									return res.status(200).json({ message: "Livre modifié !" });
+								}
+							});
+						} else res.status(200).json({ message: "Livre modifié !" });	
 					})
 					.catch(error => res.status(500).json({ error }));
 			}
@@ -86,6 +89,7 @@ exports.addRating = (req, res, next) => {
 					(ratings.reduce((total, rating) => (total + rating.grade, 0) + req.body.rating) / (ratings.length + 1)).toFixed(2) 
 					: req.body.grade.toFixed(2);
 
+					console.log("ici")
 				Book.updateOne({ _id: req.params.id }, 
 				{ 
 					$push: { ratings: { userId: req.auth.userId, grade: req.body.rating }},
