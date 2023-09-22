@@ -7,6 +7,7 @@ const sharp = require('../middleware/sharp-config.js')
 
 const bookCtrl = require('../controllers/book');
 
+router.get('/bestrating', bookCtrl.getBestRating);
 router.get('/', bookCtrl.getAllBooks);
 router.get('/:id', bookCtrl.getOneBook);
 router.post('/', auth, multer, sharp, bookCtrl.createBook);

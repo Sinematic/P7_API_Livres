@@ -2,7 +2,7 @@ const Book = require('../models/Book');
 const fs = require('fs');
 
 exports.getAllBooks = (req, res, next) => {
-
+	
 	Book.find()
 		.then((books) => res.status(200).json(books))
 		.catch(error => res.status(404).json({ error }));
@@ -12,6 +12,13 @@ exports.getOneBook = (req, res, next) => {
 
 	Book.findOne({ _id: req.params.id })
 		.then((book) => res.status(200).json(book))
+		.catch(error => res.status(404).json({ error }));
+};
+
+exports.getBestRating = (req, res, next) => {
+
+	Book.find()
+		.then((books) => res.status(200).json(books.sort((a, b) => b.averageRating - a.averageRating).slice(0, 3)))
 		.catch(error => res.status(404).json({ error }));
 };
 
@@ -80,30 +87,38 @@ exports.addRating = (req, res, next) => {
 	Book.findOne({ _id: req.params.id })
 		.then(book => {
 			const ratings = book.ratings;
-
+			const averageRating = book.averageRating;
+	
 			if (ratings.some(rating => rating.userId === req.auth.userId)) {
 				res.status(400).json({ message: "Échec : l'utilisateur a déjà noté le livre !" });
+
 			} else {
 
-				const averageRating = ratings.length > 0 ?
-					(ratings.reduce((total, rating) => (total + rating.grade, 0) + req.body.rating) / (ratings.length + 1)).toFixed(2) 
-					: req.body.grade.toFixed(2);
+				let newAverageRating;
 
-				Book.updateOne({ _id: req.params.id }, 
+				if (ratings.length > 0) {
+					newAverageRating = ((averageRating * ratings.length) + req.body.rating) / (ratings.length + 1);
+				} else newAverageRating = req.body.rating;
+				
+			Book.updateOne(
 				{ 
-					$push: { ratings: { userId: req.auth.userId, grade: req.body.rating }},
-					$set: { averageRating: averageRating }
-				})
-					.then(() => { 
-						Book.findOne({ _id: req.params.id })
-							.then((book) => res.status(200).json(book))
-							.catch(error => res.status(404).json({ error }));
-						})
-					.catch(error => res.status(500).json({ error }));
+					_id: req.params.id 
+				}, {
+					$push: { ratings: { userId: req.auth.userId, grade: req.body.rating } },
+					$set: { averageRating: newAverageRating.toFixed(2) }
+				}
+			)
+				.then(() => {
+					Book.findOne({ _id: req.params.id })
+						.then((book) => res.status(200).json(book))
+						.catch(error => res.status(404).json({ error }));
+					})
+				.catch(error => res.status(500).json({ error }));
 			}
 		})
 		.catch(error => res.status(404).json({ error }));
-}
+};
+  
 
 exports.deleteOneBook = (req, res, next) => {
 
