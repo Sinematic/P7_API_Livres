@@ -2,11 +2,12 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const path = require('path');
+require('dotenv').config();
 
 const bookRoutes = require('./routes/book');
 const userRoutes = require('./routes/user');
 
-mongoose.connect('mongodb+srv://node-api-unknown-user:IYQPlZBGR4sdGUJM@cluster0.edtwz6b.mongodb.net/',
+mongoose.connect(`${process.env.DB_PROTOCOL}://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CLUSTER}/`,
     {
         useNewUrlParser: true,
         useUnifiedTopology: true 
