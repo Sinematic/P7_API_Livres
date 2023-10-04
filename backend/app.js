@@ -7,13 +7,11 @@ require('dotenv').config();
 const bookRoutes = require('./routes/book');
 const userRoutes = require('./routes/user');
 
-mongoose.connect(`${process.env.DB_PROTOCOL}://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CLUSTER}/`,
+const dbPromise = mongoose.connect(`${process.env.DB_PROTOCOL}://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CLUSTER}/`,
     {
         useNewUrlParser: true,
         useUnifiedTopology: true 
     })
-		.then(() => console.log('Connexion à MongoDB réussie !'))
-		.catch(() => console.log('Connexion à MongoDB échouée !'));
 
 const app = express();
 
@@ -31,4 +29,7 @@ app.use('/api/books', bookRoutes);
 app.use('/api/auth', userRoutes);
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
-module.exports = app;
+module.exports = {
+    app,
+    dbPromise
+};
